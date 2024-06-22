@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+if [[ -n $1 ]]; then
+    cd "$1" || exit 1
+fi
+
+clear
+printf '\033[3J'
+
+export FZF_DEFAULT_COMMAND="rg --column --line-number --no-heading --color=always -- ''"
+
+selected=$(
+    fzf \
+        --ansi \
+        --delimiter : \
+        --preview-window 'right,60%,border-left' \
+        --preview 'bat -f --highlight-line={2} --line-range={2}: {1}' \
+        --color='fg:#d0d0d0,bg:#121212,hl:#5f87af' \
+        --color='fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff' \
+        --color='info:#afaf87,prompt:#d7005f,pointer:#af5fff' \
+        --color='marker:#87ff00,spinner:#af5fff,header:#87afaf' \
+        --prompt '🔍 Search: ' \
+        --height '90%' \
+        --layout reverse \
+        --border rounded \
+        --info inline \
+    | cut -d":" -f1,2,3
+)
+
+[[ -n $selected ]] && code -g "$PWD"/"$selected"
