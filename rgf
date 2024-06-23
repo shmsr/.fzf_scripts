@@ -16,35 +16,45 @@ cat << "EOF"
 
 EOF
 
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+# FZF color scheme
+FZF_COLOR_FG='#d0d0d0'
+FZF_COLOR_BG='#121212'
+FZF_COLOR_HL='#5f87af'
+FZF_COLOR_FG_PLUS='#d0d0d0'
+FZF_COLOR_BG_PLUS='#262626'
+FZF_COLOR_HL_PLUS='#5fd7ff'
+FZF_COLOR_INFO='#afaf87'
+FZF_COLOR_PROMPT='#d7005f'
+FZF_COLOR_POINTER='#af5fff'
+FZF_COLOR_MARKER='#87ff00'
+FZF_COLOR_SPINNER='#af5fff'
+FZF_COLOR_HEADER='#87afaf'
 
-if [[ -n $1 ]]; then
-    cd "$1" || exit 1
-fi
+[[ -n $1 ]] && cd "$1" || exit 1
 
 clear
 printf '\033[3J'
 
 export FZF_DEFAULT_COMMAND="rg --column --line-number --no-heading --color=always -- ''"
 
-selected=$(
+run_fzf() {
     fzf \
         --ansi \
         --delimiter : \
         --preview-window 'right,60%,border-left' \
         --preview 'bat -f --highlight-line={2} --line-range={2}: {1}' \
-        --color='fg:#d0d0d0,bg:#121212,hl:#5f87af' \
-        --color='fg+:#d0d0d0,bg+:#262626,hl+:#5fd7ff' \
-        --color='info:#afaf87,prompt:#d7005f,pointer:#af5fff' \
-        --color='marker:#87ff00,spinner:#af5fff,header:#87afaf' \
+        --color="fg:$FZF_COLOR_FG,bg:$FZF_COLOR_BG,hl:$FZF_COLOR_HL" \
+        --color="fg+:$FZF_COLOR_FG_PLUS,bg+:$FZF_COLOR_BG_PLUS,hl+:$FZF_COLOR_HL_PLUS" \
+        --color="info:$FZF_COLOR_INFO,prompt:$FZF_COLOR_PROMPT,pointer:$FZF_COLOR_POINTER" \
+        --color="marker:$FZF_COLOR_MARKER,spinner:$FZF_COLOR_SPINNER,header:$FZF_COLOR_HEADER" \
         --prompt '🔍 Search: ' \
         --height '90%' \
         --layout reverse \
         --border rounded \
         --info inline \
     | cut -d":" -f1,2,3
-)
+}
 
-[[ -n $selected ]] && code -g "$PWD"/"$selected"
+
+selected=$(run_fzf)
+[[ -n $selected ]] && code -g "$PWD/$selected"
